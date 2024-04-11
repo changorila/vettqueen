@@ -162,11 +162,11 @@
                                     confirm.on("click", function() {
                                         pane.hide();
                                         window.location.replace(window.location.pathname + window.location.search + window.location.hash);
-
+                                        imageObj.alpha = 1;
                                     });
                                     pane.show();
                                 }
-                                imageObj.alpha = 1;
+                                
 
                             }
 
@@ -270,7 +270,9 @@
 </head>
 
 <body>
-    <!-- canvas with id="myCanvas" is made by zim Frame -->
+    <div>
+      <a class="btn" href="inicio.html" role="button">Regresar</a>
+    </div> 
 </body>
 
 </html>
