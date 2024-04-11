@@ -1,0 +1,32 @@
+html {
+    font-family: "Tilt Neon", sans-serif;
+}
+
+body {
+    margin: 0;
+    background-color: #fdcae1;
+}
+
+header {
+    background-color: #caa2b4;
+    color: white;
+    padding: 3rem 2 rem;
+}
+
+header h1 {
+    font-size: 4rem;
+    text-align: center;
+}
+
+#fondo {
+    height: 768px;
+    background-image: url('1.png');
+    background-size: 512px 768px;
+    background-repeat: no-repeat;
+    background-position: center top;
+}
+
+.btn {
+    color: rgb(126, 3, 40);
+    
+}
