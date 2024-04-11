@@ -77,7 +77,7 @@
 
                 imageObj = frame.asset("DSC_0395.jpg").clone();
                 imageObj.addTo(con);
-                imageObj.alpha = 0.2;
+                imageObj.alpha = 0.1;
 
                 var piecesArray = new Array();
                 var horizontalPieces = 2;
@@ -167,7 +167,7 @@
                                     confirm.on("click", function() {
                                         pane.hide();
                                         //window.location.replace(window.location.pathname + window.location.search + window.location.hash);
-                                        
+                                        imageObj.alpha = 0.2;
                                               
                                     });
                                     pane.show();
