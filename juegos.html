@@ -53,11 +53,22 @@
             frame.color = "#ddd";
 
             var con = new Container
+            var num = Math.floor(Math.random() * 2);
+            var foto;
+            if (num == 0) {
+                foto="DSC_0008.JPG";
+            }
+            if (num == 1) {
+                foto="DSC_0031.jpg";
+            }
+            if (num == 2) {
+                foto="DSC_0395.jpg";
+            }
 
             // with chaining - can also assign to a variable for later access
             var imageObj = [];
             var piecesArrayObj = [];
-            frame.loadAssets(["DSC_0395.jpg"], "assets/");
+            frame.loadAssets([foto], "assets/");
 
             var label = new Label({
                text:"CLICK",
@@ -75,7 +86,7 @@
             frame.on("complete", function() {
 
 
-                imageObj = frame.asset("DSC_0395.jpg").clone();
+                imageObj = frame.asset(foto).clone();
                 imageObj.addTo(con);
                 imageObj.alpha = 0.06;
 
