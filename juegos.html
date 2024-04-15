@@ -31,10 +31,26 @@
         // "outside"	sets canvas and stage to dimensions and scales to fit outside window size
         // "full"	sets stage to window size with no scaling
         // "tagID"	add canvas to HTML tag of ID - set to dimensions if provided - no scaling
-
+        var num = Math.floor(Math.random() * 2);
+        var foto;
+        if (num == 0) {
+                foto="DSC_0008.JPG";
+                w = 4610;
+                h = 3080;
+            }
+            if (num == 1) {
+                foto="DSC_0031.jpg";
+                w = 2320;
+                h = 1540;
+            }
+            if (num == 2) {
+                foto="DSC_0395.jpg";
+                w = 2050;
+                h = 1370;
+            }
         var scaling = "fit"; // this will resize to fit inside the screen dimensions
-        var width = 2320;
-        var height = 1540;
+        var width = w;
+        var height = h;
         var countPieces = 0;
         var totalPieces = 0;
         // as of ZIM 5.5.0 you do not need to put zim before ZIM functions and classes
@@ -53,8 +69,7 @@
             frame.color = "#ddd";
 
             var con = new Container
-            var num = Math.floor(Math.random() * 2);
-            var foto;
+            
             if (num == 0) {
                 foto="DSC_0008.JPG";
             }
