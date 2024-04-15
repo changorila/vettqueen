@@ -113,9 +113,9 @@ function generateCalendar() {
   // Verificar si el día actual coincide con uno de los días fértiles o de menstruación
   const today = currentDate.getDate();
   if (fertileDays.includes(today)) {
-    showNotification('Lista para quedar preñada');
+    showNotification('Hoy '+ today +' Lista para quedar preñada');
   } else if (thirdWeekDays.includes(today)) {
-    showNotification('Tengo la panocha ensangrentada :(');
+    showNotification('Hoy '+ today +' Tengo la panocha ensangrentada :(');
   }
 }
 
