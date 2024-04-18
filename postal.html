@@ -151,51 +151,62 @@ function createTextElement(text) {
 }
 
 
-        // Función para hacer un elemento arrastrable y redimensionable
         function makeDraggableAndResizable(element) {
-            interact(element)
-                .draggable({
-                    listeners: {
-                        move(event) {
-                            const target = event.target;
-                            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+    // Agregar punto de agarre en la esquina superior derecha
+    const handle = document.createElement('div');
+    handle.style.width = '10px';
+    handle.style.height = '10px';
+    handle.style.backgroundColor = 'red';
+    handle.style.position = 'absolute';
+    handle.style.right = '0';
+    handle.style.top = '0';
+    handle.style.cursor = 'nwse-resize'; // Cambiar el cursor al puntero de redimensionamiento
+    element.appendChild(handle);
 
-                            target.style.transform = `translate(${x}px, ${y}px)`;
+    interact(element)
+        .draggable({
+            listeners: {
+                move(event) {
+                    const target = event.target;
+                    const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                    const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-                            target.setAttribute('data-x', x);
-                            target.setAttribute('data-y', y);
-                        }
-                    }
-                })
-                .resizable({
-                    edges: { left: true, right: true, top: true, bottom: true },
-                    listeners: {
-                        move(event) {
-                            const target = event.target;
-                            const x = parseFloat(target.getAttribute('data-x')) || 0;
-                            const y = parseFloat(target.getAttribute('data-y')) || 0;
-                            const { width, height } = event.rect;
+                    target.style.transform = `translate(${x}px, ${y}px)`;
 
-                            // Calcular el cambio de tamaño manteniendo las proporciones
-                            const aspectRatio = target.naturalWidth / target.naturalHeight;
-                            const newWidth = height * aspectRatio;
-                            const newHeight = width / aspectRatio;
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                }
+            }
+        })
+        .resizable({
+            edges: { left: true, right: true, top: true, bottom: true },
+            listeners: {
+                move(event) {
+                    const target = event.target;
+                    const x = parseFloat(target.getAttribute('data-x')) || 0;
+                    const y = parseFloat(target.getAttribute('data-y')) || 0;
+                    const { width, height } = event.rect;
 
-                            // Elegir el nuevo tamaño que mantiene las proporciones originales
-                            const finalWidth = newWidth > width ? newWidth : width;
-                            const finalHeight = newHeight > height ? newHeight : height;
+                    // Calcular el cambio de tamaño manteniendo las proporciones
+                    const aspectRatio = target.naturalWidth / target.naturalHeight;
+                    const newWidth = height * aspectRatio;
+                    const newHeight = width / aspectRatio;
 
-                            // Actualizar el tamaño del elemento
-                            target.style.width = `${finalWidth}px`;
-                            target.style.height = `${finalHeight}px`;
+                    // Elegir el nuevo tamaño que mantiene las proporciones originales
+                    const finalWidth = newWidth > width ? newWidth : width;
+                    const finalHeight = newHeight > height ? newHeight : height;
 
-                            // Actualizar la posición del elemento después de redimensionar
-                            target.style.transform = `translate(${x}px, ${y}px)`;
-                        }
-                    }
-                });
-        }
+                    // Actualizar el tamaño del elemento
+                    target.style.width = `${finalWidth}px`;
+                    target.style.height = `${finalHeight}px`;
+
+                    // Actualizar la posición del elemento después de redimensionar
+                    target.style.transform = `translate(${x}px, ${y}px)`;
+                }
+            }
+        });
+}
+
 
         // Función para manejar el evento de finalizar y descargar la postal
         function finalizeAndDownload() {
