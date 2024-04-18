@@ -149,10 +149,20 @@ function updatePreview() {
                     const target = event.target;
                     const x = parseFloat(target.getAttribute('data-x')) || 0;
                     const y = parseFloat(target.getAttribute('data-y')) || 0;
+                    const { width, height } = event.rect;
+
+                    // Calcular el cambio de tamaño manteniendo las proporciones
+                    const aspectRatio = target.naturalWidth / target.naturalHeight;
+                    const newWidth = height * aspectRatio;
+                    const newHeight = width / aspectRatio;
+
+                    // Elegir el nuevo tamaño que mantiene las proporciones originales
+                    const finalWidth = newWidth > width ? newWidth : width;
+                    const finalHeight = newHeight > height ? newHeight : height;
 
                     // Actualizar el tamaño del elemento
-                    target.style.width = `${event.rect.width}px`;
-                    target.style.height = `${event.rect.height}px`;
+                    target.style.width = `${finalWidth}px`;
+                    target.style.height = `${finalHeight}px`;
 
                     // Actualizar la posición del elemento después de redimensionar
                     target.style.transform = `translate(${x}px, ${y}px)`;
@@ -160,6 +170,7 @@ function updatePreview() {
             }
         });
 }
+
 
 
 
