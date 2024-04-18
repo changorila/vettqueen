@@ -155,17 +155,6 @@ function createTextElement(text) {
 
 
         function makeDraggableAndResizable(element) {
-    // Agregar punto de agarre en la esquina superior derecha
-    const handle = document.createElement('div');
-    handle.style.width = '10px';
-    handle.style.height = '10px';
-    handle.style.backgroundColor = 'red';
-    handle.style.position = 'absolute';
-    handle.style.right = '0';
-    handle.style.top = '0';
-    handle.style.cursor = 'nwse-resize'; // Cambiar el cursor al puntero de redimensionamiento
-    element.appendChild(handle);
-
     interact(element)
         .draggable({
             listeners: {
