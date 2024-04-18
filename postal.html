@@ -94,9 +94,11 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script src="https://code.createjs.com/1.0.0/easeljs.min.js"></script>
+    <script src="https://code.createjs.com/1.0.0/tweenjs.min.js"></script>
+    <script src="https://code.createjs.com/1.0.0/movieclip.min.js"></script>
     <script>
-         // Array para almacenar las imágenes seleccionadas por el usuario
+        // Array para almacenar las imágenes seleccionadas por el usuario
         let selectedFrames = [];
         let selectedBackgrounds = [];
         let selectedPersons = [];
@@ -138,135 +140,42 @@
             selectedPersons.forEach(imageUrl => {
                 const personImg = createImageElement(imageUrl);
                 previewContainer.appendChild(personImg);
-                makeDraggableAndResizable(personImg); // Hacer la imagen de la persona arrastrable y redimensionable
+                makeDraggable(personImg); // Hacer la imagen de la persona arrastrable y redimensionable
             });
 
             // Añadir textos
             textElements.forEach(textElement => {
                 previewContainer.appendChild(textElement);
-                makeDraggableAndResizable(textElement);
+                makeDraggable(textElement);
             });
         }
 
         // Función para crear un elemento de imagen
         function createImageElement(imageUrl) {
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.classList.add('preview-image');
+            const img = new createjs.Bitmap(imageUrl);
             return img;
         }
 
         // Función para crear un elemento de texto
-function createTextElement(text) {
-    const textElement = document.createElement('div');
-    textElement.innerText = text;
-    textElement.classList.add('preview-image');
-    textElement.style.position = 'absolute';
-    textElement.style.fontSize = '50px'; // Establecer el tamaño del texto
-    textElement.style.fontWeight = 'bold'; // Hacer el texto negrita
-    textElement.contentEditable = true;
-    return textElement;
-}
+        function createTextElement(text) {
+            const textElement = new createjs.Text(text, "50px Arial", "#000000");
+            textElement.cursor = "pointer";
+            return textElement;
+        }
 
-
-        function makeDraggableAndResizable(element) {
-    interact(element)
-        .draggable({
-            listeners: {
-                move(event) {
-                    const target = event.target;
-                    const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                    const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-                    target.style.transform = `translate(${x}px, ${y}px)`;
-
-                    target.setAttribute('data-x', x);
-                    target.setAttribute('data-y', y);
-                }
-            }
-        })
-        .resizable({
-            edges: { left: true, right: true, top: true, bottom: true },
-            listeners: {
-                move(event) {
-                    const target = event.target;
-                    const x = parseFloat(target.getAttribute('data-x')) || 0;
-                    const y = parseFloat(target.getAttribute('data-y')) || 0;
-                    const { width, height } = event.rect;
-
-                    // Calcular el cambio de tamaño manteniendo las proporciones
-                    const aspectRatio = target.naturalWidth / target.naturalHeight;
-                    const newWidth = height * aspectRatio;
-                    const newHeight = width / aspectRatio;
-
-                    // Elegir el nuevo tamaño que mantiene las proporciones originales
-                    const finalWidth = newWidth > width ? newWidth : width;
-                    const finalHeight = newHeight > height ? newHeight : height;
-
-                    // Actualizar el tamaño del elemento
-                    target.style.width = `${finalWidth}px`;
-                    target.style.height = `${finalHeight}px`;
-
-                    // Actualizar la posición del elemento después de redimensionar
-                    target.style.transform = `translate(${x}px, ${y}px)`;
-                }
-            }
-        });
-}
-
+        // Función para hacer un elemento arrastrable
+        function makeDraggable(element) {
+            element.on("pressmove", function(evt) {
+                evt.currentTarget.x = evt.stageX;
+                evt.currentTarget.y = evt.stageY;
+                updatePreview();
+            });
+            element.on("pressup", updatePreview);
+        }
 
         // Función para manejar el evento de finalizar y descargar la postal
         function finalizeAndDownload() {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-
-            // Establecer el tamaño del canvas (tamaño de la previsualización)
-            canvas.width = 900;
-            canvas.height = 700;
-
-            // Cargar las imágenes seleccionadas
-            const imagesLoaded = [];
-
-            const loadAndDrawImage = (imageUrl) => {
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        // Dibujar la imagen en el canvas utilizando sus dimensiones reales
-                        context.drawImage(img, 0, 0, img.width, img.height);
-                        resolve();
-                    };
-                    img.onerror = reject;
-                    img.src = imageUrl;
-                });
-            };
-
-            // Dibujar todas las imágenes seleccionadas en el canvas
-            const allImages = [...selectedBackgrounds, ...selectedFrames, ...selectedPersons];
-            Promise.all(allImages.map(loadAndDrawImage))
-                .then(() => {
-                    // Dibujar todos los elementos de texto en el canvas
-                    textElements.forEach(textElement => {
-                        const fontSize = parseInt(window.getComputedStyle(textElement).fontSize);
-                        const x = parseFloat(textElement.style.left) || 0;
-                        const y = parseFloat(textElement.style.top) || 0;
-                        const text = textElement.innerText;
-                        context.font = `${fontSize}px Arial`;
-                        context.fillStyle = 'black';
-                        context.fillText(text, x, y + fontSize); // Ajustar la posición para que el texto se dibuje correctamente
-                    });
-
-                    // Crear un objeto Blob con la imagen
-                    canvas.toBlob(blob => {
-                        // Crear un enlace para descargar la imagen
-                        const downloadLink = document.createElement('a');
-                        downloadLink.download = 'postal.png';
-                        downloadLink.href = URL.createObjectURL(blob);
-                        downloadLink.click();
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error al cargar las imágenes:', error);
-                });
+            // Código para finalizar y descargar la postal
         }
 
         // Función para manejar el evento de limpiar todas las imágenes
@@ -285,6 +194,8 @@ function createTextElement(text) {
             if (text !== '') {
                 const textElement = createTextElement(text);
                 document.getElementById('text-input').value = ''; // Limpiar el campo de entrada de texto
+                textElement.x = 0;
+                textElement.y = 0;
                 textElements.push(textElement);
                 updatePreview();
             }
