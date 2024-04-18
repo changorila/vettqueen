@@ -201,6 +201,19 @@
             }
         }
 
+        // Función para manejar el evento de hacer clic en las miniaturas de imágenes
+function setupThumbnailClickEvent(containerId, imageUrls) {
+    const thumbnailsContainer = document.getElementById(containerId);
+    imageUrls.forEach(imageUrl => {
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.classList.add('thumbnail');
+        img.onclick = () => selectImage(imageUrl, containerId);
+        thumbnailsContainer.appendChild(img);
+    });
+}
+
+        
         // Event listeners
         document.addEventListener('DOMContentLoaded', function () {
             // Carga de miniaturas de fondos
