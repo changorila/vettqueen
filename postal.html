@@ -106,20 +106,19 @@
         function updatePreview() {
             const previewContainer = document.getElementById('postal-preview');
             previewContainer.innerHTML = ''; // Limpiar la previsualización
-
+            
+            // Añadir fondos
+            selectedBackgrounds.forEach(imageUrl => {
+                const backgroundImg = createImageElement(imageUrl);
+                previewContainer.appendChild(backgroundImg);
+            });
             // Añadir marcos primero
             selectedFrames.forEach(imageUrl => {
                 const frameImg = createImageElement(imageUrl);
                 previewContainer.appendChild(frameImg);
             });
 
-            // Añadir fondos
-            selectedBackgrounds.forEach(imageUrl => {
-                const backgroundImg = createImageElement(imageUrl);
-                previewContainer.appendChild(backgroundImg);
-            });
-
-            // Añadir personas
+           // Añadir personas
             selectedPersons.forEach(imageUrl => {
                 const personImg = createImageElement(imageUrl);
                 previewContainer.appendChild(personImg);
