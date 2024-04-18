@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Postales</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos adicionales para aumentar el tamaño del área de previsualización */
+        .postal {
+            width: 900px;
+            height: 700px;
+            border: 2px solid #ccc;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .preview-image {
+            position: absolute;
+            /* Ajustamos el tamaño de la imagen */
+            height: 700px;
+            cursor: move; /* Cambiamos el cursor al mover */
+            user-select: none; /* Evitamos que el usuario seleccione la imagen al hacer clic */
+        }
+
+        .thumbnail {
+            width: 25%; /* La cuarta parte del tamaño original */
+            height: auto; /* Altura automática para mantener la proporción */
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <h2>Selecciona los marcos:</h2>
+                <div class="image-thumbnails" id="frame-thumbnails">
+                    <!-- Las miniaturas de los marcos se generarán aquí -->
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h2>Selecciona los fondos:</h2>
+                <div class="image-thumbnails" id="background-thumbnails">
+                    <!-- Las miniaturas de los fondos se generarán aquí -->
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h2>Selecciona las personas:</h2>
+                <div class="image-thumbnails" id="person-thumbnails">
+                    <!-- Las miniaturas de las personas se generarán aquí -->
+                </div>
+            </div>
+            <div class="col-md-12">
+                <h2>Previsualización:</h2>
+                <div id="postal-preview" class="postal">
+                    <!-- La postal previsualizada se generará aquí -->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <button id="clear-button" class="btn btn-danger">Borrar todas las imágenes</button>
+                <button id="finalize-button" class="btn btn-primary">Finalizar y Descargar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script>
+        // Array para almacenar las imágenes seleccionadas por el usuario
+        let selectedFrames = [];
+        let selectedBackgrounds = [];
+        let selectedPersons = [];
+
+        // Función para agregar imágenes seleccionadas al array
+        function selectImage(imageUrl, container) {
+            switch (container) {
+                case 'frame-thumbnails':
+                    selectedFrames.push(imageUrl);
+                    break;
+                case 'background-thumbnails':
+                    selectedBackgrounds.push(imageUrl);
+                    break;
+                case 'person-thumbnails':
+                    selectedPersons.push(imageUrl);
+                    break;
+            }
+            updatePreview();
+        }
+
+        // Función para actualizar la previsualización de la postal
+        // Función para actualizar la previsualización de la postal
+function updatePreview() {
+    const previewContainer = document.getElementById('postal-preview');
+    previewContainer.innerHTML = ''; // Limpiar la previsualización
+
+    // Añadir marcos primero
+    selectedFrames.forEach(imageUrl => {
+        const frameImg = createImageElement(imageUrl);
+        previewContainer.appendChild(frameImg);
+    });
+
+    // Añadir fondos
+    selectedBackgrounds.forEach(imageUrl => {
+        const backgroundImg = createImageElement(imageUrl);
+        previewContainer.appendChild(backgroundImg);
+    });
+
+    // Añadir personas
+    selectedPersons.forEach(imageUrl => {
+        const personImg = createImageElement(imageUrl);
+        previewContainer.appendChild(personImg);
+        makeDraggableAndResizable(personImg); // Hacer la imagen de la persona arrastrable y redimensionable
+    });
+}
+
+
+        // Función para crear un elemento de imagen
+        function createImageElement(imageUrl) {
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.classList.add('preview-image');
+            return img;
+        }
+
+        // Función para hacer una imagen arrastrable y redimensionable
+        function makeDraggableAndResizable(element) {
+            interact(element)
+                .draggable({
+                    listeners: {
+                        move(event) {
+                            const target = event.target;
+                            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                            target.style.transform = `translate(${x}px, ${y}px)`;
+
+                            target.setAttribute('data-x', x);
+                            target.setAttribute('data-y', y);
+                        }
+                    }
+                })
+                .resizable({
+                    edges: { left: true, right: true, top: true, bottom: true }
+                });
+        }
+
+        // Función para manejar el evento de finalizar y descargar la postal
+        function finalizeAndDownload() {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            // Establecer el tamaño del canvas (tamaño de la previsualización)
+            canvas.width = 900;
+            canvas.height = 700;
+
+            // Cargar las imágenes seleccionadas
+            const imagesLoaded = [];
+
+            const loadAndDrawImage = (imageUrl) => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve();
+                    };
+                    img.onerror = reject;
+                    img.src = imageUrl;
+                });
+            };
+
+            // Dibujar todas las imágenes seleccionadas en el canvas
+            const allImages = [...selectedBackgrounds, ...selectedFrames, ...selectedPersons];
+            Promise.all(allImages.map(loadAndDrawImage))
+                .then(() => {
+                    // Crear un objeto Blob con la imagen
+                    canvas.toBlob(blob => {
+                        // Crear un enlace para descargar la imagen
+                        const downloadLink = document.createElement('a');
+                        downloadLink.download = 'postal.png';
+                        downloadLink.href = URL.createObjectURL(blob);
+                        downloadLink.click();
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error al cargar las imágenes:', error);
+                });
+        }
+
+        // Función para manejar el evento de limpiar todas las imágenes
+        function clearAllImages() {
+            selectedPersons = [];
+            selectedFrames = [];
+            selectedBackgrounds = [];
+            updatePreview();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            
+
+            // Carga de miniaturas de fondos
+            const backgroundThumbnailsContainer = document.getElementById('background-thumbnails');
+            const backgroundUrls = [
+                'libro.png',
+                //'fondo2.png',
+                // Agregar más URLs de imágenes de fondos aquí según sea necesario
+            ];
+            backgroundUrls.forEach(imageUrl => {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.classList.add('thumbnail');
+                img.onclick = () => selectImage(imageUrl, 'background-thumbnails');
+                backgroundThumbnailsContainer.appendChild(img);
+            });
+
+            // Carga de miniaturas de personas
+            const personThumbnailsContainer = document.getElementById('person-thumbnails');
+            const personUrls = [
+                '1.png',
+                '2.png',
+                '3.png',
+                '4.png',
+                '5.png'
+                // Agregar más URLs de imágenes de personas aquí según sea necesario
+            ];
+            personUrls.forEach(imageUrl => {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.classList.add('thumbnail');
+                img.onclick = () => selectImage(imageUrl, 'person-thumbnails');
+                personThumbnailsContainer.appendChild(img);
+            });
+            // Carga de miniaturas de marcos
+            const frameThumbnailsContainer = document.getElementById('frame-thumbnails');
+            const frameImageUrls = [
+                'm1.png',
+                'm2.png'
+                // Agregar más URLs de imágenes de marcos aquí según sea necesario
+            ];
+            frameImageUrls.forEach(imageUrl => {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.classList.add('thumbnail');
+                img.onclick = () => selectImage(imageUrl, 'frame-thumbnails');
+                frameThumbnailsContainer.appendChild(img);
+            });
+        });
+
+        document.getElementById('clear-button').addEventListener('click', clearAllImages);
+        document.getElementById('finalize-button').addEventListener('click', finalizeAndDownload);
+    </script>
+</body>
+</html>
