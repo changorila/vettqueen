@@ -113,9 +113,8 @@ function updatePreview() {
     selectedPersons.forEach(imageUrl => {
         const personImg = createImageElement(imageUrl);
         previewContainer.appendChild(personImg);
-        makeDraggable(personImg); // Hacer la imagen de la persona arrastrable y redimensionable
-        makeResizable(personImg);
-    });
+        makeDraggableAndResizable(personImg); // Hacer la imagen de la persona arrastrable y redimensionable
+            });
 }
 
 
@@ -127,25 +126,11 @@ function updatePreview() {
             return img;
         }
 
-        // Función para hacer una imagen arrastrable
-        function makeDraggable(element) {
-            interact(element)
-                .draggable({
-                    listeners: {
-                        start(event) {
-                            const rect = interact.getElementRect(event.target);
-                            event.interactable.draggable({ 
-                                modifiers: [
-                                    interact.modifiers.restrictRect({
-                                        restriction: 'parent'
-                                    })
-                                ],
-                                edges: { left: true, right: true, top: true, bottom: true }
-                            });
-                        }
-                    }
-                })
-                .on('move', (event) => {
+        function makeDraggableAndResizable(element) {
+    interact(element)
+        .draggable({
+            listeners: {
+                move(event) {
                     const target = event.target;
                     const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
                     const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
@@ -154,32 +139,28 @@ function updatePreview() {
 
                     target.setAttribute('data-x', x);
                     target.setAttribute('data-y', y);
-                });
-        }
+                }
+            }
+        })
+        .resizable({
+            edges: { left: true, right: true, top: true, bottom: true },
+            listeners: {
+                move(event) {
+                    const target = event.target;
+                    const x = parseFloat(target.getAttribute('data-x')) || 0;
+                    const y = parseFloat(target.getAttribute('data-y')) || 0;
 
-        // Función para hacer una imagen redimensionable
-        function makeResizable(element) {
-            interact(element)
-                .resizable({
-                    edges: { left: true, right: true, top: true, bottom: true },
-                    listeners: {
-                        move(event) {
-                            let { x, y } = event.target.dataset;
+                    // Actualizar el tamaño del elemento
+                    target.style.width = `${event.rect.width}px`;
+                    target.style.height = `${event.rect.height}px`;
 
-                            x = (parseFloat(x) || 0) + event.deltaRect.left;
-                            y = (parseFloat(y) || 0) + event.deltaRect.top;
+                    // Actualizar la posición del elemento después de redimensionar
+                    target.style.transform = `translate(${x}px, ${y}px)`;
+                }
+            }
+        });
+}
 
-                            Object.assign(event.target.style, {
-                                width: `${event.rect.width}px`,
-                                height: `${event.rect.height}px`,
-                                transform: `translate(${x}px,${y}px)`
-                            });
-
-                            Object.assign(event.target.dataset, { x, y });
-                        }
-                    }
-                });
-        }
 
 
         // Función para manejar el evento de finalizar y descargar la postal
@@ -273,7 +254,11 @@ function updatePreview() {
             const frameThumbnailsContainer = document.getElementById('frame-thumbnails');
             const frameImageUrls = [
                 'm1.png',
-                'm2.png'
+                'm2.png',
+                'm3.png',
+                'm4.png',
+                'm5.png',
+                'm6.png'
                 // Agregar más URLs de imágenes de marcos aquí según sea necesario
             ];
             frameImageUrls.forEach(imageUrl => {
