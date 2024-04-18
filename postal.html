@@ -139,14 +139,17 @@
         }
 
         // Función para crear un elemento de texto
-        function createTextElement(text) {
-            const textElement = document.createElement('div');
-            textElement.innerText = text;
-            textElement.classList.add('preview-image');
-            textElement.style.position = 'absolute';
-            textElement.contentEditable = true;
-            return textElement;
-        }
+function createTextElement(text) {
+    const textElement = document.createElement('div');
+    textElement.innerText = text;
+    textElement.classList.add('preview-image');
+    textElement.style.position = 'absolute';
+    textElement.style.fontSize = '50px'; // Establecer el tamaño del texto
+    textElement.style.fontWeight = 'bold'; // Hacer el texto negrita
+    textElement.contentEditable = true;
+    return textElement;
+}
+
 
         // Función para hacer un elemento arrastrable y redimensionable
         function makeDraggableAndResizable(element) {
