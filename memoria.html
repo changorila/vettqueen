@@ -77,6 +77,20 @@
                 });
             });
 
+            // Show cards for a second at the beginning
+            showCards();
+
+            function showCards() {
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.add('flipped');
+                });
+                setTimeout(() => {
+                    document.querySelectorAll('.card').forEach(card => {
+                        card.classList.remove('flipped');
+                    });
+                }, 1000);
+            }
+
             function flipCard(card) {
                 if (flippedCards.length < 2 && !flippedCards.includes(card) && !matchedCards.includes(card)) {
                     card.classList.add('flipped');
