@@ -21,6 +21,21 @@
             cursor: pointer;
             background-size: cover;
             background-position: center;
+            position: relative; /* Añadido para posicionar el contenido */
+        }
+
+        .card .back {
+            position: absolute; /* Añadido para posicionar la parte de atrás */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff; /* Color de fondo para ocultar la imagen */
+            visibility: visible; /* Oculta la parte de atrás */
+        }
+
+        .flipped .back {
+            visibility: hidden; /* Muestra la parte de atrás cuando la carta está girada */
         }
     </style>
 </head>
@@ -68,6 +83,9 @@
             cards.forEach(image => {
                 const card = document.createElement('div');
                 card.className = 'card';
+                const back = document.createElement('div'); // Añadido para la parte de atrás de la carta
+                back.className = 'back';
+                card.appendChild(back);
                 card.style.backgroundImage = `url(${image})`;
                 memoryGame.querySelector('.card-container').appendChild(card);
 
