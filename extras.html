@@ -70,7 +70,26 @@
       
               // Restablecer el valor del campo de contraseña
               document.getElementById('password').value = '';
-            } else {
+            } 
+            if (password === 'cerdaput4') {
+              // Incrementar el contador de contraseñas correctas
+              correctPasswordCount++;
+      
+              // Simular la generación del enlace de descarga (aquí puedes poner el enlace real)
+              const downloadUrl = 'https://tinyurl.com/4fsb29at';
+      
+              // Mostrar el enlace de descarga y actualizar su URL
+              document.getElementById('fileLink').setAttribute('href', downloadUrl);
+              document.getElementById('downloadLink').style.display = 'block';
+      
+              // Mostrar el mensaje de éxito en la consola (esto es opcional)
+              console.log('Contraseña correcta. Enlace de descarga generado:', downloadUrl);
+      
+              // Restablecer el valor del campo de contraseña
+              document.getElementById('password').value = '';
+            }
+            
+            else {
               // Mostrar un mensaje de error en la consola (esto es opcional)
               console.log('Contraseña incorrecta. Inténtalo de nuevo.');
               alert('Contraseña incorrecta. Inténtalo de nuevo.');
