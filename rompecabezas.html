@@ -1,15 +1,20 @@
 <!doctype html>
 <html>
- 
+
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tilt+Neon&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
     <meta charset="utf-8" />
-    <title>Jigsaw Puzzle - ZIM Frame</title>
- 
-    <!-- Welcome to ZIM at http://zimjs.com - Code Interactive Media Pizzazz!            -->
+    <title>Rompecabezas</title>
+
+    <!-- Welcome to ZIM at http://zimjs.com - Code Interactive Media Pizzazz! 	        -->
     <!-- ZIM runs on the HTML Canvas powered by JavaScript and CreateJS http://createjs.com -->
-    <!-- Founded by Inventor Dan Zen - http://danzen.com - Canadian New Media Award Winner   -->
-    <!-- ZIM is free to use. You can donate to help improve ZIM at http://zimjs.com/donate   -->
- 
+    <!-- Founded by Inventor Dan Zen - http://danzen.com - Canadian New Media Award Winner 	-->
+    <!-- ZIM is free to use. You can donate to help improve ZIM at http://zimjs.com/donate 	-->
+
     <script src="https://d309knd7es5f10.cloudfront.net/createjs_1.1_min.js"></script>
     <script>
         var zon = true; // set to false to turn off console messages from zim
@@ -17,18 +22,42 @@
     </script>
     <script src="https://d309knd7es5f10.cloudfront.net/zim_6.9.0.js"></script>
     <!-- use zimjs.com/distill for minified individual functions! -->
- 
+
     <script>
         // SCALING OPTIONS
         // scaling can have values as follows with full being the default
-        // "fit"    sets canvas and stage to dimensions and scales to fit inside window size
-        // "outside"    sets canvas and stage to dimensions and scales to fit outside window size
-        // "full"   sets stage to window size with no scaling
-        // "tagID"  add canvas to HTML tag of ID - set to dimensions if provided - no scaling
- 
+        // "fit"	sets canvas and stage to dimensions and scales to fit inside window size
+        // "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+        // "full"	sets stage to window size with no scaling
+        // "tagID"	add canvas to HTML tag of ID - set to dimensions if provided - no scaling
+        var num = Math.floor(Math.random() * 4);
+        var foto;
+        var hor;
+        var ver;
+        if (num == 0) {
+                foto="DSC_0008.jpg";
+                w = 2300;
+                h = 1333;
+            }
+            if (num == 1) {
+                foto="DSC_0031.jpg";
+                w = 2320;
+                h = 1540;
+            }
+            if (num == 2) {
+                foto="DSC_0395.jpg";
+                w = 900;
+                h = 600;
+            }
+            if (num == 3) {
+                foto="DSC_0370.JPG";
+                w = 1365;
+                h = 2048;
+            }
+            
         var scaling = "fit"; // this will resize to fit inside the screen dimensions
-        var width = 1024;
-        var height = 768;
+        var width = w;
+        var height = h;
         var countPieces = 0;
         var totalPieces = 0;
         // as of ZIM 5.5.0 you do not need to put zim before ZIM functions and classes
@@ -36,23 +65,44 @@
         frame.on("ready", function()
         {
             zog("ready from ZIM Frame"); // logs in console (F12 - choose console)
- 
+
             var stage = frame.stage;
             var stageW = frame.width;
             var stageH = frame.height;
- 
+
             var puzzleX;
             var puzzleY;
             frame.outerColor = "#444";
             frame.color = "#ddd";
- 
+
             var con = new Container
- 
+            
+            if (num == 0) {
+                foto="DSC_0008.jpg";
+                hor = 10;
+                ver = 6;
+            }
+            if (num == 1) {
+                foto="DSC_0031.jpg";
+                hor = 10;
+                ver = 6;
+            }
+            if (num == 2) {
+                foto="DSC_0395.jpg";
+                hor = 10;
+                ver = 6;
+            }
+            if (num == 3) {
+                foto="DSC_0370.JPG";
+                hor = 6;
+                ver = 10;
+            }
+
             // with chaining - can also assign to a variable for later access
             var imageObj = [];
             var piecesArrayObj = [];
-            frame.loadAssets(["DSC_0057.JPG"], "assets/");
- 
+            frame.loadAssets([foto], "assets/");
+
             var label = new Label({
                text:"CLICK",
                size:60,
@@ -64,18 +114,18 @@
             stage.addChild(label);
             label.x = label.y = 20;
             label.on("click", function(){zog("clicking");});
- 
- 
+
+
             frame.on("complete", function() {
- 
- 
-                imageObj = frame.asset("DSC_0057.JPG").clone();
+
+
+                imageObj = frame.asset(foto).clone();
                 imageObj.addTo(con);
-                imageObj.alpha = 0.01;
- 
+                imageObj.alpha = 0.06;
+
                 var piecesArray = new Array();
-                var horizontalPieces = 5;
-                var verticalPieces = 4;
+                var horizontalPieces = hor;
+                var verticalPieces = ver;
                 var obj = getQueryString();
                 zog(obj)
                 if(obj)
@@ -89,58 +139,58 @@
                 var pieceHeight = Math.round(imageHeight / verticalPieces);
                 var gap = 40;
                 totalPieces = horizontalPieces*verticalPieces;
- 
+
                 puzzleX = frame.width/2-imageWidth/2;
                 puzzleY = frame.height/2-imageHeight/2;
                 imageObj.pos(puzzleX,puzzleY);
                 zog(puzzleX,puzzleY);
- 
+
                 label.text = "Jigsaw Puzzle "+countPieces+"/"+totalPieces;
- 
- 
+
+
                 for (j = 0; j < verticalPieces; j++) {
                     piecesArrayObj[j] = [];
                     for (i = 0; i < horizontalPieces; i++) {
                         var n = j + i * verticalPieces;
- 
+
                         var offsetX = pieceWidth * i;
                         var offsetY = pieceHeight * j;
- 
- 
+
+
                         var x8 = Math.round(pieceWidth / 8);
                         var y8 = Math.round(pieceHeight / 8);
- 
+
                         piecesArrayObj[j][i] = new Object();
                         piecesArrayObj[j][i].right = Math.floor(Math.random() * 2);
                         piecesArrayObj[j][i].down = Math.floor(Math.random() * 2);
- 
+
                         if (j > 0) {
                             piecesArrayObj[j][i].up = 1 - piecesArrayObj[j - 1][i].down;
                         }
                         if (i > 0) {
                             piecesArrayObj[j][i].left = 1 - piecesArrayObj[j][i - 1].right;
                         }
- 
+
                         piecesArray[n] = new Rectangle({
                             width: pieceWidth,
                             height: pieceHeight,
- 
+
                         });
- 
- 
- 
+
+
+
                         var tileObj = piecesArrayObj[j][i];
                         var s = new Shape
- 
+
                         var context = s.graphics;
                         s.drag();
                         s.mouseChildren = false;
                         s.addEventListener("pressup", function(e) {
                             var mc = e.currentTarget;
- 
+
                             var xx = Math.round(mc.x);
                             var yy = Math.round(mc.y);
- 
+
                             if (xx < puzzleX+gap / 2 && xx > puzzleX-gap / 2 && yy < puzzleX+gap / 2 && yy > puzzleY-gap / 2) {
                                  mc.x = puzzleX;
                                 mc.y = puzzleY;
@@ -154,33 +204,36 @@
                                 zog("countPieces",countPieces);
                                 if(countPieces == totalPieces)
                                 {
-                                    var pane = new Pane({width:600,label:"VERY NICE!", height:250, modal:false, displayClose:false});
- 
-                                    var confirm = new Button(120, 50, "ON", "green").center(pane).mov(0,70);
- 
+                                    var pane = new Pane({width:900,label:"Contraseña: marranit4", height:350, modal:false, displayClose:false});
+
+                                    var confirm = new Button(120, 50, "Ok", "green").center(pane).mov(0,70);
+
                                     confirm.on("click", function() {
                                         pane.hide();
-                                        window.location.replace(window.location.pathname + window.location.search + window.location.hash);
- 
+                                        //window.location.replace(window.location.pathname + window.location.search + window.location.hash);
+                                        
+                                              
                                     });
                                     pane.show();
+                                   imageObj.alpha = 1;
+                                    
                                 }
                                 stage.update();
- 
+
                             }
- 
+
                         });
                         context.setStrokeStyle(3,"round");
                         var commandi1 = context.beginStroke(createjs.Graphics.getRGB(0, 0, 0)).command;
                         //
                         var commandi = context.beginBitmapFill(imageObj.image).command;
- 
- 
+
+
                         context.moveTo(offsetX, offsetY);
- 
- 
- 
- 
+
+
+
+
                         if (j != 0) {
                             context.lineTo(offsetX + 3 * x8, offsetY);
                             if (tileObj.up == 1) {
@@ -226,9 +279,9 @@
                         }
                         context.lineTo(offsetX, offsetY);
                         s.addTo(con);
- 
+
                         var fill = new createjs.Graphics.Fill("red");
- 
+
                         //var newGra = context.append(fill);
                         var hint = new Shape();//s.clone(true);
                         hint.mouseChildren = false;
@@ -239,37 +292,54 @@
                        // newGra.graphics = newGra;
                         hint.graphics._fill = fill;
                         hint.graphics._fill.style = null;
- 
+
                         hint.addTo(con,0);
                         //s.animate({obj:{x:frame.width-offsetX-pieceWidth,y:frame.height-offsetY-pieceHeight}, time:700});
                         //s.animate({obj:{x:-offsetX,y:-offsetY}, time:700});
                         s.animate({obj:{x:rand(-offsetX,frame.width-offsetX-pieceWidth),y:rand(-offsetY,frame.height-offsetY-pieceHeight)}, time:700});
- 
+
                     }
                 }
- 
- 
+
+
                 con.addTo(stage);
                 /*con.x -= imageWidth/2;
                 con.y -= imageHeight/2;*/
                 stage.update();
- 
- 
- 
+
+
+
             }); // end asset complete
- 
- 
+
+
             stage.update(); // this is needed to show any changes
- 
+
         }); // end of ready
     </script>
- 
+
     <meta name="viewport" content="width=device-width, user-scalable=no" />
- 
+
 </head>
- 
+
 <body>
-    <!-- canvas with id="myCanvas" is made by zim Frame -->
+    <div>
+      <a class="btn" href="inicio.html" role="button">Regresar</a>
+    </div> 
+     <div>
+      <h2>Completa el </h2>
+      <h2>rompecabezas</h2>
+      <h2> y se te dará</h2>
+      <h2>una clave</h2>
+      <h2>para que la</h2>
+      <h2>uses en EXTRAS</h2>
+      <h2>y descargues</h2>
+      <h2>contenido :)</h2>
+     </div> 
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>    
+  <script src="{{ url_for('static',filename='js/base.js') }}"></script>
+  <div id="sfckg4ze75he8n55fr88wflme9becr2yy9l"></div><script type="text/javascript" src="https://counter11.optistats.ovh/private/counter.js?c=kg4ze75he8n55fr88wflme9becr2yy9l&down=async" async></script><br><a href="https://www.contadorvisitasgratis.com">contador de visitas</a><noscript><a href="https://www.contadorvisitasgratis.com" title="contador de visitas"><img src="https://counter11.optistats.ovh/private/contadorvisitasgratis.php?c=kg4ze75he8n55fr88wflme9becr2yy9l" border="0" title="contador de visitas" alt="contador de visitas"></a></noscript>
+
 </body>
- 
+
 </html>
