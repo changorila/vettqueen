@@ -42,7 +42,10 @@
 <body>
     <div>
         <a class="btn" href="inicio.html" role="button">Regresar</a>
-        </div>
+        <h3>Tienes 3 minutos o se reinicia el juego. Si ganas se te dará una contraseña para que 
+            la uses en EXTRAS
+        </h3>
+    </div>
     <div class="container">
         <div class="row">
             <div id="memory-game" class="col-md-12">
@@ -61,7 +64,7 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <p>Contraseña: hola</p>
+                    <p>Contraseña: hidropuerc4</p>
                 </div>
             </div>
         </div>
@@ -101,6 +104,12 @@
             // Show cards for a second at the beginning
             showCards();
 
+            // Start countdown timer
+            const timer = setTimeout(() => {
+                displayLoseMessage();
+                restartGame();
+            }, 3 * 60 * 1000); // 3 minutes in milliseconds
+
             function showCards() {
                 document.querySelectorAll('.card').forEach(card => {
                     card.classList.add('flipped');
@@ -131,6 +140,7 @@
                 if (image1 === image2) {
                     matchedCards.push(card1, card2);
                     if (matchedCards.length === cards.length) {
+                        clearTimeout(timer); // Stop the timer
                         displayWinMessage();
                     }
                 } else {
@@ -143,6 +153,15 @@
 
             function displayWinMessage() {
                 $('#win-message').modal('show');
+            }
+
+            function displayLoseMessage() {
+                alert('Tu tiempo terminó! Suerte para la próxima!');
+            }
+
+            function restartGame() {
+                // Reload the page to restart the game
+                location.reload();
             }
 
             // Function to shuffle an array (Fisher-Yates shuffle algorithm)
