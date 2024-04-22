@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Encontrar la Imagen Oculta</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hidden-image {
+            max-width: 100%;
+            height: auto;
+            display: none;
+        }
+
+        .hidden-image-container {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .hidden-image-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent 30%, black);
+            pointer-events: none;
+        }
+
+        .reveal-button {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-4">¡Encuentra la Imagen Oculta!</h1>
+        <div id="image-container" class="row mt-4">
+            <!-- Las imágenes y los puntos ocultos se añadirán aquí dinámicamente -->
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = [
+                "h1.png"
+            ];
+
+            const imageContainer = document.getElementById('image-container');
+
+            images.forEach(image => {
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'col-md-4 mb-4';
+
+                const hiddenImageContainer = document.createElement('div');
+                hiddenImageContainer.className = 'hidden-image-container';
+
+                const hiddenImage = document.createElement('img');
+                hiddenImage.src = `hidden/${image}`;
+                hiddenImage.className = 'hidden-image';
+
+                const revealButton = document.createElement('button');
+                revealButton.className = 'btn btn-primary reveal-button';
+                revealButton.textContent = 'Revelar Imagen';
+                revealButton.addEventListener('click', function() {
+                    hiddenImage.style.display = 'block';
+                    revealButton.style.display = 'none';
+                });
+
+                hiddenImageContainer.appendChild(hiddenImage);
+                hiddenImageContainer.appendChild(revealButton);
+                imageDiv.appendChild(hiddenImageContainer);
+                imageContainer.appendChild(imageDiv);
+            });
+        });
+    </script>
+</body>
+</html>
