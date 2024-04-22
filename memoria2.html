@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 0 auto;
+            max-width: 1100px; /* Ajusta el ancho según tu preferencia */
+        }
+
+        .card {
+            width: 150px;
+            height: 150px;
+            margin: 5px;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            position: relative; /* Añadido para posicionar el contenido */
+        }
+
+        .card .back {
+            position: absolute; /* Añadido para posicionar la parte de atrás */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff; /* Color de fondo para ocultar la imagen */
+            visibility: visible; /* Oculta la parte de atrás */
+        }
+
+        .flipped .back {
+            visibility: hidden; /* Muestra la parte de atrás cuando la carta está girada */
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <a class="btn" href="juegos.html" role="button">Regresar</a>
+        <h3>Tienes 3 minutos o se reinicia el juego. Si ganas se te dará una contraseña para 
+            la uses en EXTRAS
+        </h3>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div id="memory-game" class="col-md-12">
+                <div class="card-container">
+                    <!-- Cards will be added dynamically here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="win-message" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Felicidades!</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>¡Felicidades! Has ganado el juego.</p>
+                    <p>Aquí está el enlace de descarga:</p>
+                    <a href="https://tinyurl.com/574u48d2" class="btn btn-primary">Descargar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const memoryGame = document.getElementById('memory-game');
+            const images = ['me1.jpg', 'me2.jpg', 'me3.jpg','me4.jpg', 'me5.jpg','me6.jpg', 'me7.jpg', 
+            'me8.jpg', 'me9.jpg', 'me10.jpg', 'me11.jpg',  'me12.jpg', 'me13.jpg', 'me14.jpg', 'me15.jpg' ]; // Tus nombres de imagen aquí
+
+            // Duplicate the images array to create pairs
+            const cards = images.concat(images);
+
+            // Shuffle the cards
+            shuffle(cards);
+
+            let flippedCards = [];
+            let matchedCards = [];
+
+            // Create card elements and add them to the memory game container
+            cards.forEach(image => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                const back = document.createElement('div'); // Añadido para la parte de atrás de la carta
+                back.className = 'back';
+                card.appendChild(back);
+                card.style.backgroundImage = `url(${image})`;
+                memoryGame.querySelector('.card-container').appendChild(card);
+
+                // Add click event listener to each card
+                card.addEventListener('click', () => {
+                    flipCard(card);
+                });
+            });
+
+            // Show cards for a second at the beginning
+            showCards();
+
+            // Start countdown timer
+            const timer = setTimeout(() => {
+                displayLoseMessage();
+                restartGame();
+            }, 5 * 60 * 1000); // 3 minutes in milliseconds
+
+            function showCards() {
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.add('flipped');
+                });
+                setTimeout(() => {
+                    document.querySelectorAll('.card').forEach(card => {
+                        card.classList.remove('flipped');
+                    });
+                }, 5000);
+            }
+
+            function flipCard(card) {
+                if (flippedCards.length < 2 && !flippedCards.includes(card) && !matchedCards.includes(card)) {
+                    card.classList.add('flipped');
+                    flippedCards.push(card);
+
+                    if (flippedCards.length === 2) {
+                        setTimeout(checkMatch, 1000);
+                    }
+                }
+            }
+
+            function checkMatch() {
+                const [card1, card2] = flippedCards;
+                const image1 = card1.style.backgroundImage;
+                const image2 = card2.style.backgroundImage;
+
+                if (image1 === image2) {
+                    matchedCards.push(card1, card2);
+                    if (matchedCards.length === cards.length) {
+                        clearTimeout(timer); // Stop the timer
+                        displayWinMessage();
+                    }
+                } else {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                }
+
+                flippedCards = [];
+            }
+
+            function displayWinMessage() {
+                $('#win-message').modal('show');
+            }
+
+            function displayLoseMessage() {
+                alert('Tu tiempo terminó! Suerte para la próxima!');
+            }
+
+            function restartGame() {
+                // Reload the page to restart the game
+                location.reload();
+            }
+
+            // Function to shuffle an array (Fisher-Yates shuffle algorithm)
+            function shuffle(array) {
+                let currentIndex = array.length, temporaryValue, randomIndex;
+
+                while (currentIndex !== 0) {
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+
+                    temporaryValue = array[currentIndex];
+                    array[currentIndex] = array[randomIndex];
+                    array[randomIndex] = temporaryValue;
+                }
+
+                return array;
+            }
+        });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
