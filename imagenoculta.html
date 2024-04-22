@@ -6,12 +6,6 @@
     <title>Juego de Encontrar la Imagen Oculta</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .hidden-image {
-            max-width: 100%;
-            height: auto;
-            display: none;
-        }
-
         .hidden-image-container {
             position: relative;
             overflow: hidden;
@@ -25,8 +19,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(transparent 30%, black);
+            background: linear-gradient(transparent 30%, rgba(0, 0, 0, 0.8));
             pointer-events: none;
+        }
+
+        .hidden-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            visibility: hidden;
         }
 
         .reveal-button {
@@ -72,7 +73,7 @@
                 revealButton.className = 'btn btn-primary reveal-button';
                 revealButton.textContent = 'Revelar Imagen';
                 revealButton.addEventListener('click', function() {
-                    hiddenImage.style.display = 'block';
+                    hiddenImage.style.visibility = 'visible';
                     revealButton.style.display = 'none';
                 });
 
