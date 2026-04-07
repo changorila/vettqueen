@@ -6,126 +6,109 @@
     <title>Inicio - Vett Queen</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tilt+Neon&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Tilt+Neon&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Disfruta</h1>
+
+    <nav class="navbar">
+        <span class="navbar-brand">VETT QUEEN</span>
+        <a class="navbar-back" href="index.html">Salir</a>
+    </nav>
+
+    <header class="page-header">
+        <h1 class="page-title">Hola, soy <span>Vett Queen</span></h1>
+        <p class="page-subtitle">
+            Esta es mi página personal donde subo contenido libre y sin censura.
+            Aún en construcción, pero prometo que va a mejorar y subiré más cositas.
+        </p>
     </header>
-    <h2>
-        Hola soy Vett Queen!! Esta es una página donde iré subiendo <br>
-        mi contenido libre y sin censura.
-    </h2>
-    <h2>
-        Está a prueba y puede tener fallos
-        pero prometo que va a mejorar <br> y subiré más cositas!!
-    </h2>
-    <div>
-        <a class="btn" href="index.html" role="button">Regresar</a>
-    </div>
 
-    <div id="calendarContainer" class="calendar-container">
-        <h3>Calendario de Menstruación</h3>
-        <h4>Menstruación: Días en rojo</h4>
-        <h4>Fértiles: Días en verde</h4>
-        <div id="calendar" class="calendar"></div>
-    </div>
+    <main class="card-grid">
+        <a href="fotos.html" class="card">
+            <div class="card-img-wrapper">
+                <img class="card-img" src="portada1.png" alt="Fotos">
+            </div>
+            <div class="card-body">
+                <p class="card-label">Galería</p>
+                <h2 class="card-title">Fotos</h2>
+                <p class="card-desc">Mis galerías privadas. Tres sets de fotos esperándote.</p>
+            </div>
+        </a>
 
-    <div class="container-fluid bg-light py-5 text-center">
-        <div class="row align-items-start">
-            <div class="col-md-4 py-2">
-                <h1>Juegos</h1>
-                <h3>Iré subiendo más jueguitos cada que ganes uno podrás descargar más fotos! en EXTRAS</h3>
-                <a href="juegos.html"><img src="rompecabezas.png" class="img-fluid"></a>
+        <a href="juegos.html" class="card">
+            <div class="card-img-wrapper">
+                <img class="card-img" src="rompecabezas.png" alt="Juegos">
             </div>
-            <div class="col-md-4 py-2">
-                <h1>Fotos</h1>
-                <a href="fotos.html"><img src="portada1.png" class="img-fluid"></a>
+            <div class="card-body">
+                <p class="card-label">Interactivo</p>
+                <h2 class="card-title">Juegos</h2>
+                <p class="card-desc">Gana mis jueguitos y desbloquea contenido exclusivo en Extras.</p>
             </div>
-            <div class="col-md-4 py-2">
-                <h1>Extras</h1>
-                <a href="extras.html"><img src="portada2.png" class="img-fluid"></a>
+        </a>
+
+        <a href="extras.html" class="card">
+            <div class="card-img-wrapper">
+                <img class="card-img" src="portada2.png" alt="Extras">
             </div>
+            <div class="card-body">
+                <p class="card-label">Bonus</p>
+                <h2 class="card-title">Extras</h2>
+                <p class="card-desc">Sube fotos, crea postales personalizadas y más.</p>
+            </div>
+        </a>
+    </main>
+
+    <!-- Calendario como widget colapsable -->
+    <details class="calendar-widget">
+        <summary>Mi ciclo</summary>
+        <div class="calendar-legend">
+            <span class="leg-red">Menstruación</span>
+            <span class="leg-green">Fértil</span>
         </div>
-    </div>
+        <div id="calendar"></div>
+        <div id="calNotification"></div>
+    </details>
 
     <script>
-        function generateCalendar() {
-            const calendar = document.getElementById('calendar');
-            const currentDate = new Date();
-            const numberOfDaysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-            const firstDayOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+        (function () {
+            const cal = document.getElementById('calendar');
+            const d = new Date();
+            const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+            const firstDay = new Date(d.getFullYear(), d.getMonth(), 1).getDay();
 
-            const thirdWeekDays = [];
+            const thirdWeek = [];
             for (let i = 1; i <= 7; i++) {
-                const day = firstDayOfWeek + 7 * 2 + i;
-                if (day <= numberOfDaysInMonth) {
-                    thirdWeekDays.push(day);
-                }
+                const day = firstDay + 14 + i;
+                if (day <= daysInMonth) thirdWeek.push(day);
             }
+            const fertile = thirdWeek.map(d => d - 7).filter(d => d > 0);
 
-            const fertileDays = [];
-            thirdWeekDays.forEach(day => {
-                const fertileDay = day - 7;
-                if (fertileDay > 0) {
-                    fertileDays.push(fertileDay);
+            let html = '<table><thead><tr><th>D</th><th>L</th><th>M</th><th>X</th><th>J</th><th>V</th><th>S</th></tr></thead><tbody>';
+            let day = 1;
+            for (let r = 0; r < 6; r++) {
+                html += '<tr>';
+                for (let c = 0; c < 7; c++) {
+                    if (r === 0 && c < firstDay) { html += '<td></td>'; continue; }
+                    if (day > daysInMonth) { html += '<td></td>'; continue; }
+                    let cls = day === d.getDate() ? 'today' : '';
+                    if (thirdWeek.includes(day)) cls += ' menstruation';
+                    else if (fertile.includes(day)) cls += ' fertility';
+                    html += `<td class="${cls.trim()}">${day}</td>`;
+                    day++;
                 }
-            });
-
-            let calendarHTML = '<table class="calendar">';
-            calendarHTML += '<thead><tr>';
-            calendarHTML += '<th>Domingo</th><th>Lunes</th><th>Martes</th><th>Miércoles</th>';
-            calendarHTML += '<th>Jueves</th><th>Viernes</th><th>Sábado</th>';
-            calendarHTML += '</tr></thead><tbody>';
-
-            let dayCount = 1;
-            for (let i = 0; i < 6; i++) {
-                calendarHTML += '<tr>';
-                for (let j = 0; j < 7; j++) {
-                    if (i === 0 && j < firstDayOfWeek) {
-                        calendarHTML += '<td></td>';
-                    } else if (dayCount <= numberOfDaysInMonth) {
-                        let className = '';
-                        if (thirdWeekDays.includes(dayCount)) {
-                            className = 'menstruation';
-                        } else if (fertileDays.includes(dayCount)) {
-                            className = 'fertility';
-                        }
-                        calendarHTML += `<td class="${className}">${dayCount}</td>`;
-                        dayCount++;
-                    } else {
-                        calendarHTML += '<td></td>';
-                    }
-                }
-                calendarHTML += '</tr>';
+                html += '</tr>';
             }
+            html += '</tbody></table>';
+            cal.innerHTML = html;
 
-            calendarHTML += '</tbody></table>';
-            calendar.innerHTML = calendarHTML;
-
-            const today = currentDate.getDate();
-            if (fertileDays.includes(today)) {
-                showNotification('Hoy ' + today + ' Lista para quedar preñada');
-            } else if (thirdWeekDays.includes(today)) {
-                showNotification('Hoy ' + today + ' Tengo la panocha ensangrentada :(');
-            }
-        }
-
-        function showNotification(message) {
-            const calendarContainer = document.getElementById('calendarContainer');
-            const notification = document.createElement('div');
-            notification.textContent = message;
-            notification.classList.add('notification');
-            calendarContainer.appendChild(notification);
-        }
-
-        generateCalendar();
+            const today = d.getDate();
+            const notif = document.getElementById('calNotification');
+            if (fertile.includes(today)) notif.textContent = '🟢 Hoy estás fértil';
+            else if (thirdWeek.includes(today)) notif.textContent = '🔴 Hoy estás en periodo';
+            notif.className = 'notification';
+        })();
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
 </body>
 </html>
