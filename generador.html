@@ -20,11 +20,11 @@
       --user: linear-gradient(135deg, #ff4fd8, #9b5cff);
       --bot: rgba(255,255,255,0.07);
       --shadow: 0 20px 50px rgba(0,0,0,0.35);
+      --warning: #ffd166;
+      --success: #7bd88f;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -40,7 +40,7 @@
     .navbar {
       width: 100%;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       padding: 18px 24px;
       border-bottom: 1px solid var(--border);
@@ -55,17 +55,6 @@
       font-family: "Tilt Neon", sans-serif;
       font-size: 1.2rem;
       letter-spacing: 0.08em;
-    }
-
-    .navbar-back {
-      color: var(--text);
-      text-decoration: none;
-      font-weight: 600;
-      opacity: 0.9;
-    }
-
-    .navbar-back:hover {
-      opacity: 1;
     }
 
     .page {
@@ -93,6 +82,37 @@
       line-height: 1.6;
     }
 
+    .availability {
+      margin: 18px auto 0;
+      max-width: 760px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 16px;
+      text-align: left;
+      box-shadow: var(--shadow);
+    }
+
+    .availability-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .availability-text {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .availability-status {
+      margin-top: 10px;
+      font-size: 0.93rem;
+      font-weight: 600;
+    }
+
+    .status-open { color: var(--success); }
+    .status-closed { color: var(--warning); }
+
     .chat-shell {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -100,6 +120,7 @@
       box-shadow: var(--shadow);
       overflow: hidden;
       backdrop-filter: blur(14px);
+      margin-top: 22px;
     }
 
     .chat-header {
@@ -133,17 +154,9 @@
       scroll-behavior: smooth;
     }
 
-    .msg-row {
-      display: flex;
-    }
-
-    .msg-row.user {
-      justify-content: flex-end;
-    }
-
-    .msg-row.bot {
-      justify-content: flex-start;
-    }
+    .msg-row { display: flex; }
+    .msg-row.user { justify-content: flex-end; }
+    .msg-row.bot { justify-content: flex-start; }
 
     .msg {
       max-width: min(78%, 760px);
@@ -227,9 +240,7 @@
       transition: transform 0.16s ease, opacity 0.16s ease;
     }
 
-    .save-btn:hover {
-      transform: translateY(-1px);
-    }
+    .save-btn:hover { transform: translateY(-1px); }
 
     .chat-footer {
       padding: 16px;
@@ -257,9 +268,7 @@
       outline: none;
     }
 
-    .input-wrap textarea::placeholder {
-      color: #9aa3b7;
-    }
+    .input-wrap textarea::placeholder { color: #9aa3b7; }
 
     .input-wrap button {
       border: none;
@@ -274,9 +283,7 @@
       transition: transform 0.16s ease, opacity 0.16s ease;
     }
 
-    .input-wrap button:hover {
-      transform: translateY(-1px);
-    }
+    .input-wrap button:hover { transform: translateY(-1px); }
 
     .input-wrap button:disabled {
       opacity: 0.55;
@@ -316,31 +323,18 @@
     }
 
     @media (max-width: 720px) {
-      .msg {
-        max-width: 90%;
-      }
-
-      .input-wrap {
-        flex-direction: column;
-      }
-
-      .input-wrap button {
-        width: 100%;
-      }
-
-      .save-wrap {
-        justify-content: stretch;
-      }
-
-      .save-btn {
-        width: 100%;
-      }
+      .msg { max-width: 90%; }
+      .input-wrap { flex-direction: column; }
+      .input-wrap button { width: 100%; }
+      .save-wrap { justify-content: stretch; }
+      .save-btn { width: 100%; }
     }
   </style>
 </head>
 <body>
   <nav class="navbar">
     <span class="navbar-brand">VETT QUEEN</span>
+  </nav>
 
   <main class="page">
     <section class="hero">
@@ -348,6 +342,14 @@
       <p id="subtitle">
         Escríbelo como si estuvieras chateando. Por ejemplo: una vista 3/4 en una habitación con vista al mar, luz natural, estilo realista.
       </p>
+
+      <div class="availability">
+        <div class="availability-title" id="availabilityTitle">Horario de generación</div>
+        <div class="availability-text" id="availabilityText">
+          Disponible de 9:00 AM a 12:00 PM — Mexico City (UTC-6).
+        </div>
+        <div class="availability-status" id="availabilityStatus"></div>
+      </div>
     </section>
 
     <section class="chat-shell">
@@ -382,15 +384,16 @@
 
   <script>
     const backendUrl = "https://comfy-backend-15u2.onrender.com/generate";
+    const downloadBaseUrl = "https://comfy-backend-15u2.onrender.com/download-image";
     const chatBody = document.getElementById("chatBody");
     const promptInput = document.getElementById("prompt");
     const sendBtn = document.getElementById("sendBtn");
+    const availabilityStatus = document.getElementById("availabilityStatus");
 
     const lang = navigator.language && navigator.language.startsWith("es") ? "es" : "en";
 
     const i18n = {
       es: {
-        back: "Volver",
         title: "Generador IA",
         subtitle: "Escríbelo como si estuvieras chateando. Por ejemplo: una vista 3/4 en una habitación con vista al mar, luz natural, estilo realista.",
         chatTitle: "Asistente visual",
@@ -407,10 +410,13 @@
         connectionError: "Error de conexión con el backend.",
         translated: "Prompt usado:",
         save: "Save",
-        downloadError: "No se pudo guardar la imagen."
+        downloadError: "No se pudo guardar la imagen.",
+        availabilityTitle: "Horario de generación",
+        availabilityText: "Disponible de 9:00 AM a 12:00 PM — Mexico City (UTC-6).",
+        openNow: "Disponible ahora.",
+        closedNow: "Fuera de horario. La ventana habitual es de 9:00 AM a 12:00 PM, hora de Ciudad de México (UTC-6)."
       },
       en: {
-        back: "Back",
         title: "AI Generator",
         subtitle: "Write it as if you were chatting. For example: a 3/4 view in a room with an ocean view, natural light, realistic style.",
         chatTitle: "Visual assistant",
@@ -427,7 +433,11 @@
         connectionError: "Connection error with the backend.",
         translated: "Prompt used:",
         save: "Save",
-        downloadError: "Could not save the image."
+        downloadError: "Could not save the image.",
+        availabilityTitle: "Generation schedule",
+        availabilityText: "Available from 9:00 AM to 12:00 PM — Mexico City (UTC-6).",
+        openNow: "Available now.",
+        closedNow: "Outside schedule. Usual window: 9:00 AM to 12:00 PM Mexico City time (UTC-6)."
       }
     };
 
@@ -435,7 +445,6 @@
 
     function applyTranslations() {
       document.documentElement.lang = lang;
-      document.getElementById("backBtn").textContent = t.back;
       document.getElementById("title").textContent = t.title;
       document.getElementById("subtitle").textContent = t.subtitle;
       document.getElementById("chatTitle").textContent = t.chatTitle;
@@ -444,6 +453,8 @@
       document.getElementById("prompt").placeholder = t.placeholder;
       document.getElementById("sendBtn").textContent = t.send;
       document.getElementById("helper").textContent = t.helper;
+      document.getElementById("availabilityTitle").textContent = t.availabilityTitle;
+      document.getElementById("availabilityText").textContent = t.availabilityText;
     }
 
     function appendMessage(role, contentHtml) {
@@ -467,26 +478,43 @@
         .replaceAll(">", "&gt;");
     }
 
-    function setLoadingState(isLoading) {
-      sendBtn.disabled = isLoading;
-      promptInput.disabled = isLoading;
+    function getMexicoCityHour() {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Mexico_City",
+        hour: "numeric",
+        hour12: false
+      }).formatToParts(new Date());
+
+      const hourPart = parts.find(p => p.type === "hour");
+      return Number(hourPart.value);
+    }
+
+    function isWithinMexicoCityWindow() {
+      const hour = getMexicoCityHour();
+      return hour >= 9 && hour < 12;
+    }
+
+    function updateAvailabilityUI() {
+      const isOpen = isWithinMexicoCityWindow();
+      availabilityStatus.textContent = isOpen ? t.openNow : t.closedNow;
+      availabilityStatus.className = `availability-status ${isOpen ? "status-open" : "status-closed"}`;
     }
 
     function descargarImagen(url) {
-  try {
-    const downloadUrl = `https://comfy-backend-15u2.onrender.com/download-image?url=${encodeURIComponent(url)}`;
+      try {
+        const downloadUrl = `${downloadBaseUrl}?url=${encodeURIComponent(url)}`;
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "vettqueen-image.png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch (error) {
+        alert(t.downloadError);
+        console.error(error);
+      }
+    }
 
-    const a = document.createElement("a");
-    a.href = downloadUrl;
-    a.download = "vettqueen-image.png";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  } catch (error) {
-    alert(t.downloadError);
-    console.error(error);
-  }
-}
     async function generar() {
       const prompt = promptInput.value.trim();
       if (!prompt) {
@@ -496,7 +524,8 @@
 
       appendMessage("user", escapeHtml(prompt));
       promptInput.value = "";
-      setLoadingState(true);
+      sendBtn.disabled = true;
+      promptInput.disabled = true;
 
       const loadingBubble = appendMessage(
         "bot",
@@ -520,13 +549,11 @@
         }
 
         if (data.imageUrl) {
-          const uniqueId = `img_${Date.now()}`;
           loadingBubble.innerHTML = `
             <div>${t.ready}</div>
             <div class="image-card">
               <div class="image-wrapper">
                 <img
-                  id="${uniqueId}"
                   class="generated-image"
                   src="${data.imageUrl}"
                   alt="Generated image"
@@ -548,7 +575,8 @@
         loadingBubble.innerHTML = escapeHtml(t.connectionError);
         console.error(error);
       } finally {
-        setLoadingState(false);
+        sendBtn.disabled = false;
+        promptInput.disabled = false;
         promptInput.focus();
       }
     }
@@ -571,6 +599,8 @@
     });
 
     applyTranslations();
+    updateAvailabilityUI();
+    setInterval(updateAvailabilityUI, 60000);
   </script>
 </body>
 </html>
