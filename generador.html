@@ -1,54 +1,583 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Generador IA</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador IA - Vett Queen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tilt+Neon&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0b12;
+      --panel: rgba(255,255,255,0.06);
+      --panel-strong: rgba(255,255,255,0.1);
+      --border: rgba(255,255,255,0.12);
+      --text: #f5f7fb;
+      --muted: #aeb6c7;
+      --accent: #ff4fd8;
+      --accent-2: #9b5cff;
+      --user: linear-gradient(135deg, #ff4fd8, #9b5cff);
+      --bot: rgba(255,255,255,0.07);
+      --shadow: 0 20px 50px rgba(0,0,0,0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(155,92,255,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(255,79,216,0.16), transparent 22%),
+        linear-gradient(180deg, #0a0a11 0%, #0f1118 100%);
+    }
+
+    .navbar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(10, 10, 17, 0.7);
+    }
+
+    .navbar-brand {
+      font-family: "Tilt Neon", sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.08em;
+    }
+
+    .navbar-back {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    .navbar-back:hover {
+      opacity: 1;
+    }
+
+    .page {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 36px 18px 60px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-family: "Tilt Neon", sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      letter-spacing: 0.02em;
+    }
+
+    .hero p {
+      margin: 0 auto;
+      max-width: 740px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .chat-shell {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+    }
+
+    .chat-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-title {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .chat-subtitle {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .chat-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 420px;
+      max-height: 65vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .msg-row {
+      display: flex;
+    }
+
+    .msg-row.user {
+      justify-content: flex-end;
+    }
+
+    .msg-row.bot {
+      justify-content: flex-start;
+    }
+
+    .msg {
+      max-width: min(78%, 760px);
+      padding: 14px 16px;
+      border-radius: 20px;
+      line-height: 1.55;
+      font-size: 0.97rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid transparent;
+    }
+
+    .msg.user {
+      background: var(--user);
+      color: white;
+      border-bottom-right-radius: 8px;
+    }
+
+    .msg.bot {
+      background: var(--bot);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 8px;
+    }
+
+    .prompt-used {
+      margin-top: 10px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-top: 1px dashed rgba(255,255,255,0.12);
+      padding-top: 10px;
+    }
+
+    .image-card {
+      margin-top: 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      overflow: hidden;
+    }
+
+    .image-wrapper {
+      position: relative;
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 18px;
+    }
+
+    .generated-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    .image-overlay {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      z-index: 2;
+    }
+
+    .save-wrap {
+      margin-top: 12px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .save-btn {
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 24px rgba(155, 92, 255, 0.28);
+      transition: transform 0.16s ease, opacity 0.16s ease;
+    }
+
+    .save-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .chat-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .input-wrap {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .input-wrap textarea {
+      flex: 1;
+      resize: none;
+      min-height: 58px;
+      max-height: 180px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border-radius: 18px;
+      padding: 16px;
+      font: inherit;
+      outline: none;
+    }
+
+    .input-wrap textarea::placeholder {
+      color: #9aa3b7;
+    }
+
+    .input-wrap button {
+      border: none;
+      border-radius: 18px;
+      padding: 15px 18px;
+      min-width: 120px;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 30px rgba(155, 92, 255, 0.35);
+      transition: transform 0.16s ease, opacity 0.16s ease;
+    }
+
+    .input-wrap button:hover {
+      transform: translateY(-1px);
+    }
+
+    .input-wrap button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .helper {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    .typing {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .typing span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #c8d0df;
+      opacity: 0.5;
+      animation: blink 1.2s infinite ease-in-out;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.15s; }
+    .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes blink {
+      0%, 80%, 100% { transform: scale(0.9); opacity: 0.3; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+
+    @media (max-width: 720px) {
+      .msg {
+        max-width: 90%;
+      }
+
+      .input-wrap {
+        flex-direction: column;
+      }
+
+      .input-wrap button {
+        width: 100%;
+      }
+
+      .save-wrap {
+        justify-content: stretch;
+      }
+
+      .save-btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
-<body style="font-family: Arial; padding: 20px; text-align:center;">
+<body>
+  <nav class="navbar">
+    <span class="navbar-brand">VETT QUEEN</span>
+    <a class="navbar-back" href="juegos.html" id="backBtn">Volver</a>
+  </nav>
 
-    <h1>Generador IA</h1>
+  <main class="page">
+    <section class="hero">
+      <h1 id="title">Generador IA</h1>
+      <p id="subtitle">
+        Escríbelo como si estuvieras chateando. Por ejemplo: una vista 3/4 en una habitación con vista al mar, luz natural, estilo realista.
+      </p>
+    </section>
 
-    <input id="prompt" type="text" placeholder="Describe la imagen..."
-        style="width:300px; padding:10px;">
+    <section class="chat-shell">
+      <div class="chat-header">
+        <div>
+          <div class="chat-title" id="chatTitle">Asistente visual</div>
+          <div class="chat-subtitle" id="chatSubtitle">Describe la escena en tu idioma y generaré la imagen.</div>
+        </div>
+      </div>
 
-    <br><br>
+      <div id="chatBody" class="chat-body">
+        <div class="msg-row bot">
+          <div class="msg bot" id="welcomeMessage">
+            Hola. Puedes pedirme una imagen en lenguaje natural.
+            <br><br>
+            Ejemplo: “una mujer en vista 3/4 junto a una ventana con vista al mar, luz suave, estilo realista”
+          </div>
+        </div>
+      </div>
 
-    <button onclick="generar()" style="padding:10px 20px;">
-        Generar
-    </button>
+      <div class="chat-footer">
+        <div class="input-wrap">
+          <textarea id="prompt" placeholder="Escribe aquí tu idea..."></textarea>
+          <button id="sendBtn" onclick="generar()">Generar</button>
+        </div>
+        <div class="helper" id="helper">
+          Consejo: describe pose, ángulo, entorno, iluminación y estilo.
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <p id="status"></p>
+  <script>
+    const backendUrl = "https://comfy-backend-15u2.onrender.com/generate";
+    const chatBody = document.getElementById("chatBody");
+    const promptInput = document.getElementById("prompt");
+    const sendBtn = document.getElementById("sendBtn");
 
-    <img id="resultado" style="max-width:500px; display:none; margin-top:20px;">
+    const lang = navigator.language && navigator.language.startsWith("es") ? "es" : "en";
 
-    <script>
-        async function generar() {
-            const prompt = document.getElementById("prompt").value;
-            const status = document.getElementById("status");
-            const img = document.getElementById("resultado");
+    const i18n = {
+      es: {
+        back: "Volver",
+        title: "Generador IA",
+        subtitle: "Escríbelo como si estuvieras chateando. Por ejemplo: una vista 3/4 en una habitación con vista al mar, luz natural, estilo realista.",
+        chatTitle: "Asistente visual",
+        chatSubtitle: "Describe la escena en tu idioma y generaré la imagen.",
+        welcome: `Hola. Puedes pedirme una imagen en lenguaje natural.<br><br>Ejemplo: “una mujer en vista 3/4 junto a una ventana con vista al mar, luz suave, estilo realista”`,
+        placeholder: "Escribe aquí tu idea...",
+        send: "Generar",
+        helper: "Consejo: describe pose, ángulo, entorno, iluminación y estilo.",
+        empty: "Escribe una idea primero.",
+        generating: "Generando imagen...",
+        ready: "Imagen generada correctamente.",
+        backendError: "Ocurrió un error:",
+        invalidImage: "No se recibió una imagen válida.",
+        connectionError: "Error de conexión con el backend.",
+        translated: "Prompt usado:",
+        save: "Save",
+        downloadError: "No se pudo guardar la imagen."
+      },
+      en: {
+        back: "Back",
+        title: "AI Generator",
+        subtitle: "Write it as if you were chatting. For example: a 3/4 view in a room with an ocean view, natural light, realistic style.",
+        chatTitle: "Visual assistant",
+        chatSubtitle: "Describe the scene in your language and I will generate the image.",
+        welcome: `Hi. You can ask me for an image using natural language.<br><br>Example: “a woman in 3/4 view beside a window with an ocean view, soft light, realistic style”`,
+        placeholder: "Write your idea here...",
+        send: "Generate",
+        helper: "Tip: describe pose, angle, environment, lighting, and style.",
+        empty: "Write an idea first.",
+        generating: "Generating image...",
+        ready: "Image generated successfully.",
+        backendError: "An error occurred:",
+        invalidImage: "No valid image was received.",
+        connectionError: "Connection error with the backend.",
+        translated: "Prompt used:",
+        save: "Save",
+        downloadError: "Could not save the image."
+      }
+    };
 
-            status.textContent = "Generando...";
-            img.style.display = "none";
+    const t = i18n[lang];
 
-            const res = await fetch("https://comfy-backend-15u2.onrender.com/generate", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ prompt })
-            });
+    function applyTranslations() {
+      document.documentElement.lang = lang;
+      document.getElementById("backBtn").textContent = t.back;
+      document.getElementById("title").textContent = t.title;
+      document.getElementById("subtitle").textContent = t.subtitle;
+      document.getElementById("chatTitle").textContent = t.chatTitle;
+      document.getElementById("chatSubtitle").textContent = t.chatSubtitle;
+      document.getElementById("welcomeMessage").innerHTML = t.welcome;
+      document.getElementById("prompt").placeholder = t.placeholder;
+      document.getElementById("sendBtn").textContent = t.send;
+      document.getElementById("helper").textContent = t.helper;
+    }
 
-            const data = await res.json();
+    function appendMessage(role, contentHtml) {
+      const row = document.createElement("div");
+      row.className = `msg-row ${role}`;
 
-            if (data.imageUrl) {
-                img.src = data.imageUrl;
-                img.style.display = "block";
-                status.textContent = "Listo";
-            } else {
-                status.textContent = "Error";
-            }
+      const bubble = document.createElement("div");
+      bubble.className = `msg ${role}`;
+      bubble.innerHTML = contentHtml;
+
+      row.appendChild(bubble);
+      chatBody.appendChild(row);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      return bubble;
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    function setLoadingState(isLoading) {
+      sendBtn.disabled = isLoading;
+      promptInput.disabled = isLoading;
+    }
+
+    async function descargarImagen(url) {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = "vettqueen-image.png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        alert(t.downloadError);
+        console.error(error);
+      }
+    }
+
+    async function generar() {
+      const prompt = promptInput.value.trim();
+      if (!prompt) {
+        appendMessage("bot", escapeHtml(t.empty));
+        return;
+      }
+
+      appendMessage("user", escapeHtml(prompt));
+      promptInput.value = "";
+      setLoadingState(true);
+
+      const loadingBubble = appendMessage(
+        "bot",
+        `${t.generating}<div class="typing"><span></span><span></span><span></span></div>`
+      );
+
+      try {
+        const res = await fetch(backendUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ prompt })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          loadingBubble.innerHTML = `${escapeHtml(t.backendError)} ${escapeHtml(data.error || "Unknown error")}`;
+          return;
         }
-    </script>
 
+        if (data.imageUrl) {
+          const uniqueId = `img_${Date.now()}`;
+          loadingBubble.innerHTML = `
+            <div>${t.ready}</div>
+            <div class="image-card">
+              <div class="image-wrapper">
+                <img
+                  id="${uniqueId}"
+                  class="generated-image"
+                  src="${data.imageUrl}"
+                  alt="Generated image"
+                  draggable="false"
+                >
+                <div class="image-overlay"></div>
+              </div>
+            </div>
+            <div class="save-wrap">
+              <button class="save-btn" onclick="descargarImagen('${data.imageUrl.replaceAll("'", "\\'")}')">${t.save}</button>
+            </div>
+            ${data.translatedPrompt ? `<div class="prompt-used"><strong>${t.translated}</strong> ${escapeHtml(data.translatedPrompt)}</div>` : ""}
+          `;
+        } else {
+          loadingBubble.innerHTML = escapeHtml(t.invalidImage);
+        }
+
+      } catch (error) {
+        loadingBubble.innerHTML = escapeHtml(t.connectionError);
+        console.error(error);
+      } finally {
+        setLoadingState(false);
+        promptInput.focus();
+      }
+    }
+
+    promptInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        generar();
+      }
+    });
+
+    document.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+    });
+
+    document.addEventListener("dragstart", (e) => {
+      if (e.target.tagName === "IMG") {
+        e.preventDefault();
+      }
+    });
+
+    applyTranslations();
+  </script>
 </body>
 </html>
