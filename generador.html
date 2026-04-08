@@ -474,26 +474,21 @@
       promptInput.disabled = isLoading;
     }
 
-    async function descargarImagen(url) {
-      try {
-        const res = await fetch(url);
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
+    function descargarImagen(url) {
+  try {
+    const downloadUrl = `https://comfy-backend-15u2.onrender.com/download-image?url=${encodeURIComponent(url)}`;
 
-        const a = document.createElement("a");
-        a.href = blobUrl;
-        a.download = "vettqueen-image.png";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-
-        URL.revokeObjectURL(blobUrl);
-      } catch (error) {
-        alert(t.downloadError);
-        console.error(error);
-      }
-    }
-
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = "vettqueen-image.png";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (error) {
+    alert(t.downloadError);
+    console.error(error);
+  }
+}
     async function generar() {
       const prompt = promptInput.value.trim();
       if (!prompt) {
