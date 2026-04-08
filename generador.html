@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador IA</title>
+</head>
+<body style="font-family: Arial; padding: 20px; text-align:center;">
+
+    <h1>Generador IA</h1>
+
+    <input id="prompt" type="text" placeholder="Describe la imagen..."
+        style="width:300px; padding:10px;">
+
+    <br><br>
+
+    <button onclick="generar()" style="padding:10px 20px;">
+        Generar
+    </button>
+
+    <p id="status"></p>
+
+    <img id="resultado" style="max-width:500px; display:none; margin-top:20px;">
+
+    <script>
+        async function generar() {
+            const prompt = document.getElementById("prompt").value;
+            const status = document.getElementById("status");
+            const img = document.getElementById("resultado");
+
+            status.textContent = "Generando...";
+            img.style.display = "none";
+
+            const res = await fetch("https://comfy-backend-15u2.onrender.com/generate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ prompt })
+            });
+
+            const data = await res.json();
+
+            if (data.imageUrl) {
+                img.src = data.imageUrl;
+                img.style.display = "block";
+                status.textContent = "Listo";
+            } else {
+                status.textContent = "Error";
+            }
+        }
+    </script>
+
+</body>
+</html>
