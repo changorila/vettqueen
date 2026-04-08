@@ -38,6 +38,15 @@
                 body: JSON.stringify({ prompt })
             });
 
+            if (data.imageUrl) {
+            img.src = data.imageUrl;
+            img.style.display = "block";
+            status.textContent = "Listo";
+
+            document.getElementById("promptTraducido").textContent =
+                data.translatedPrompt ? `Prompt usado: ${data.translatedPrompt}` : "";
+        }
+            
             const data = await res.json();
 
             if (data.imageUrl) {
