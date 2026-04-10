@@ -383,8 +383,10 @@
   </main>
 
   <script>
-    const backendUrl = "https://comfy-backend-15u2.onrender.com/generate";
-    const downloadBaseUrl = "https://comfy-backend-15u2.onrender.com/download-image";
+    const backendBaseUrl = "https://comfy-backend-15u2.onrender.com";
+    const generateUrl = `${backendBaseUrl}/generate`;
+    const downloadBaseUrl = `${backendBaseUrl}/download-image`;
+
     const chatBody = document.getElementById("chatBody");
     const promptInput = document.getElementById("prompt");
     const sendBtn = document.getElementById("sendBtn");
@@ -403,7 +405,9 @@
         send: "Generar",
         helper: "Consejo: describe pose, ángulo, entorno, iluminación y estilo.",
         empty: "Escribe una idea primero.",
-        generating: "Generando imagen...",
+        submitting: "Enviando solicitud...",
+        queued: "Tu solicitud está en cola...",
+        running: "Generando imagen...",
         ready: "Imagen generada correctamente.",
         backendError: "Ocurrió un error:",
         invalidImage: "No se recibió una imagen válida.",
@@ -414,7 +418,10 @@
         availabilityTitle: "Horario de generación",
         availabilityText: "Disponible de 9:00 AM a 12:00 PM — Mexico City (UTC-6).",
         openNow: "Disponible ahora.",
-        closedNow: "Fuera de horario. La ventana habitual es de 9:00 AM a 12:00 PM, hora de Ciudad de México (UTC-6)."
+        closedNow: "Fuera de horario. La ventana habitual es de 9:00 AM a 12:00 PM, hora de Ciudad de México (UTC-6).",
+        statusQueued: "En cola...",
+        statusRunning: "Procesando...",
+        statusFailed: "La generación falló."
       },
       en: {
         title: "AI Generator",
@@ -426,7 +433,9 @@
         send: "Generate",
         helper: "Tip: describe pose, angle, environment, lighting, and style.",
         empty: "Write an idea first.",
-        generating: "Generating image...",
+        submitting: "Submitting request...",
+        queued: "Your request is queued...",
+        running: "Generating image...",
         ready: "Image generated successfully.",
         backendError: "An error occurred:",
         invalidImage: "No valid image was received.",
@@ -437,7 +446,10 @@
         availabilityTitle: "Generation schedule",
         availabilityText: "Available from 9:00 AM to 12:00 PM — Mexico City (UTC-6).",
         openNow: "Available now.",
-        closedNow: "Outside schedule. Usual window: 9:00 AM to 12:00 PM Mexico City time (UTC-6)."
+        closedNow: "Outside schedule. Usual window: 9:00 AM to 12:00 PM Mexico City time (UTC-6).",
+        statusQueued: "Queued...",
+        statusRunning: "Processing...",
+        statusFailed: "Generation failed."
       }
     };
 
@@ -472,7 +484,7 @@
     }
 
     function escapeHtml(text) {
-      return text
+      return String(text)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;");
@@ -515,8 +527,78 @@
       }
     }
 
+    function renderImageResult(targetBubble, imageUrl, translatedPrompt) {
+      targetBubble.innerHTML = `
+        <div>${t.ready}</div>
+        <div class="image-card">
+          <div class="image-wrapper">
+            <img
+              class="generated-image"
+              src="${imageUrl}"
+              alt="Generated image"
+              draggable="false"
+            >
+            <div class="image-overlay"></div>
+          </div>
+        </div>
+        <div class="save-wrap">
+          <button class="save-btn" onclick="descargarImagen('${imageUrl.replaceAll("'", "\\'")}')">${t.save}</button>
+        </div>
+        ${translatedPrompt ? `<div class="prompt-used"><strong>${t.translated}</strong> ${escapeHtml(translatedPrompt)}</div>` : ""}
+      `;
+    }
+
+    async function pollJob(jobId, loadingBubble) {
+      const maxChecks = 180;
+
+      for (let i = 0; i < maxChecks; i++) {
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        const res = await fetch(`${backendBaseUrl}/job/${encodeURIComponent(jobId)}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          loadingBubble.innerHTML = `${escapeHtml(t.backendError)} ${escapeHtml(data.error || "Unknown error")}`;
+          return;
+        }
+
+        if (data.status === "queued") {
+          loadingBubble.innerHTML = `
+            <div>${t.queued}</div>
+            <div class="typing"><span></span><span></span><span></span></div>
+          `;
+          continue;
+        }
+
+        if (data.status === "running") {
+          loadingBubble.innerHTML = `
+            <div>${t.running}</div>
+            <div class="typing"><span></span><span></span><span></span></div>
+          `;
+          continue;
+        }
+
+        if (data.status === "done") {
+          if (data.imageUrl) {
+            renderImageResult(loadingBubble, data.imageUrl, data.translatedPrompt);
+          } else {
+            loadingBubble.innerHTML = escapeHtml(t.invalidImage);
+          }
+          return;
+        }
+
+        if (data.status === "failed") {
+          loadingBubble.innerHTML = `${escapeHtml(t.backendError)} ${escapeHtml(data.error || t.statusFailed)}`;
+          return;
+        }
+      }
+
+      loadingBubble.innerHTML = `${escapeHtml(t.backendError)} Timeout`;
+    }
+
     async function generar() {
       const prompt = promptInput.value.trim();
+
       if (!prompt) {
         appendMessage("bot", escapeHtml(t.empty));
         return;
@@ -529,11 +611,11 @@
 
       const loadingBubble = appendMessage(
         "bot",
-        `${t.generating}<div class="typing"><span></span><span></span><span></span></div>`
+        `${t.submitting}<div class="typing"><span></span><span></span><span></span></div>`
       );
 
       try {
-        const res = await fetch(backendUrl, {
+        const res = await fetch(generateUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -548,29 +630,17 @@
           return;
         }
 
-        if (data.imageUrl) {
-          loadingBubble.innerHTML = `
-            <div>${t.ready}</div>
-            <div class="image-card">
-              <div class="image-wrapper">
-                <img
-                  class="generated-image"
-                  src="${data.imageUrl}"
-                  alt="Generated image"
-                  draggable="false"
-                >
-                <div class="image-overlay"></div>
-              </div>
-            </div>
-            <div class="save-wrap">
-              <button class="save-btn" onclick="descargarImagen('${data.imageUrl.replaceAll("'", "\\'")}')">${t.save}</button>
-            </div>
-            ${data.translatedPrompt ? `<div class="prompt-used"><strong>${t.translated}</strong> ${escapeHtml(data.translatedPrompt)}</div>` : ""}
-          `;
-        } else {
+        if (!data.jobId) {
           loadingBubble.innerHTML = escapeHtml(t.invalidImage);
+          return;
         }
 
+        loadingBubble.innerHTML = `
+          <div>${t.queued}</div>
+          <div class="typing"><span></span><span></span><span></span></div>
+        `;
+
+        await pollJob(data.jobId, loadingBubble);
       } catch (error) {
         loadingBubble.innerHTML = escapeHtml(t.connectionError);
         console.error(error);
