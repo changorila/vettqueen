@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generador IA - Vett Queen</title>
+  <title>Generador IA - Monse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tilt+Neon&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -333,12 +333,12 @@
 </head>
 <body>
   <nav class="navbar">
-    <span class="navbar-brand">VETT QUEEN</span>
+    <span class="navbar-brand">MONSE IA</span>
   </nav>
 
   <main class="page">
     <section class="hero">
-      <h1 id="title">Generador IA</h1>
+      <h1 id="title">Generador IA - Monse</h1>
       <p id="subtitle">
         Escríbelo como si estuvieras chateando. Por ejemplo: una vista 3/4 en una habitación con vista al mar, luz natural, estilo realista.
       </p>
@@ -356,7 +356,7 @@
       <div class="chat-header">
         <div>
           <div class="chat-title" id="chatTitle">Asistente visual</div>
-          <div class="chat-subtitle" id="chatSubtitle">Describe la escena en tu idioma y generaré la imagen.</div>
+          <div class="chat-subtitle" id="chatSubtitle">Describe la escena en tu idioma y generaré la imagen de Monse.</div>
         </div>
       </div>
 
@@ -383,6 +383,7 @@
   </main>
 
   <script>
+    const MODEL_NAME = "monse";
     const backendBaseUrl = "https://comfy-backend-15u2.onrender.com";
     const generateUrl = `${backendBaseUrl}/generate`;
     const downloadBaseUrl = `${backendBaseUrl}/download-image`;
@@ -396,10 +397,10 @@
 
     const i18n = {
       es: {
-        title: "Generador IA",
+        title: "Generador IA - Monse",
         subtitle: "Escríbelo como si estuvieras chateando. Por ejemplo: una vista 3/4 en una habitación con vista al mar, luz natural, estilo realista.",
         chatTitle: "Asistente visual",
-        chatSubtitle: "Describe la escena en tu idioma y generaré la imagen.",
+        chatSubtitle: "Describe la escena en tu idioma y generaré la imagen de Monse.",
         welcome: `Hola. Puedes pedirme una imagen en lenguaje natural.<br><br>Ejemplo: “una mujer en vista 3/4 junto a una ventana con vista al mar, luz suave, estilo realista”`,
         placeholder: "Escribe aquí tu idea...",
         send: "Generar",
@@ -424,10 +425,10 @@
         statusFailed: "La generación falló."
       },
       en: {
-        title: "AI Generator",
+        title: "AI Generator - Monse",
         subtitle: "Write it as if you were chatting. For example: a 3/4 view in a room with an ocean view, natural light, realistic style.",
         chatTitle: "Visual assistant",
-        chatSubtitle: "Describe the scene in your language and I will generate the image.",
+        chatSubtitle: "Describe the scene in your language and I will generate Monse's image.",
         welcome: `Hi. You can ask me for an image using natural language.<br><br>Example: “a woman in 3/4 view beside a window with an ocean view, soft light, realistic style”`,
         placeholder: "Write your idea here...",
         send: "Generate",
@@ -514,10 +515,10 @@
 
     function descargarImagen(url) {
       try {
-        const downloadUrl = `${downloadBaseUrl}?url=${encodeURIComponent(url)}`;
+        const downloadUrl = `${downloadBaseUrl}?url=${encodeURIComponent(url)}&model=${encodeURIComponent(MODEL_NAME)}`;
         const a = document.createElement("a");
         a.href = downloadUrl;
-        a.download = "vettqueen-image.png";
+        a.download = `${MODEL_NAME}-image.png`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -620,7 +621,10 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ prompt })
+          body: JSON.stringify({
+            prompt,
+            model: MODEL_NAME
+          })
         });
 
         const data = await res.json();
